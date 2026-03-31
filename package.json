@@ -1,6 +1,6 @@
 {
   "name": "periodic-function",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "description": "Periodic waveform functions — phase normalized to [0,1]",
   "exports": {
@@ -27,7 +27,18 @@
     "type": "git",
     "url": "git+https://github.com/dfcreative/periodic-function.git"
   },
-  "keywords": ["periodic", "waveform", "sine", "sawtooth", "square", "triangle", "fourier", "wavetable", "dsp", "audio"],
+  "keywords": [
+    "periodic",
+    "waveform",
+    "sine",
+    "sawtooth",
+    "square",
+    "triangle",
+    "fourier",
+    "wavetable",
+    "dsp",
+    "audio"
+  ],
   "author": "Dmitry Iv <dfcreative@gmail.com>",
   "license": "MIT"
 }
