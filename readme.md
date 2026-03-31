@@ -18,33 +18,24 @@ wavetable(null, [0, 1, 0, 0.5])  // Float32Array wavetable from Fourier coeffici
 
 All functions take phase `t ∈ [0, 1]` as first argument. Values outside `[0, 1]` wrap correctly.
 
-### Waveforms
-
 | | Function | Description |
 |:---:|---|---|
-| ![](img/sine.svg) | `sine(t, phase=0)` | Sine wave. `phase=0.25` gives cosine. |
-| ![](img/cosine.svg) | `cosine(t, phase=0)` | Cosine wave. Equivalent to `sine(t, 0.25)`. |
-| ![](img/sawtooth.svg) | `sawtooth(t)` | Descending ramp: 1 at t=0, −1 approaching t=1. For ascending ramp use `triangle(t, 0)`. |
-| ![](img/square.svg) | `square(t, duty=0.5)` | Square wave. `duty` = fraction of period spent high. |
-| ![](img/triangle.svg) | `triangle(t, ratio=0.5)` | Triangle wave. `ratio` = peak position (0 = ascending ramp, 1 = descending ramp). |
-| ![](img/trapezoid.svg) | `trapezoid(t, p1=0.25, p2=0.5, p3=0.75)` | Trapezoid wave. Rise ends at `p1`, fall starts at `p2`, fall ends at `p3`. Generalizes square and triangle. |
-| ![](img/pulse.svg) | `pulse(t, width=0)` | Dirac-like pulse: 1 at t=0, 0 elsewhere. `width` extends the high region. |
-| ![](img/clausen.svg) | `clausen(t, harmonics=10)` | [Clausen function](https://en.wikipedia.org/wiki/Clausen_function): Σ sin(kθ)/k². |
-| ![](img/noise.svg) | `noise(t)` | Periodic noise — repeating random buffer. |
-
-### Wavetable / Fourier
-
-| | Function | Description |
-|:---:|---|---|
-| ![](img/fourier.svg) | `fourier(t, real, imag)` | Evaluate one sample from Fourier coefficients. `real[k]` and `imag[k]` are cosine/sine amplitudes for harmonic `k`. Index 0 is DC offset, 1 is fundamental. |
-| ![](img/wavetable.svg) | `wavetable(real, imag, {size=8192, normalize=true})` | Build a `Float32Array` wavetable from Fourier coefficients. Used for `AudioContext.createPeriodicWave`. |
-
-### Lookup
-
-| | Function | Description |
-|:---:|---|---|
-| ![](img/interpolate.svg) | `interpolate(t, samples)` | Linearly interpolate between samples, treating them as one period. |
-| ![](img/step.svg) | `step(t, samples)` | Step lookup — nearest sample, no interpolation. |
+| | **Waveforms** | |
+| <img src="img/sine.svg" width="200" height="60" alt="sine"> | `sine(t, phase=0)` | Sine wave. `phase=0.25` gives cosine. |
+| <img src="img/cosine.svg" width="200" height="60" alt="cosine"> | `cosine(t, phase=0)` | Cosine wave. Equivalent to `sine(t, 0.25)`. |
+| <img src="img/sawtooth.svg" width="200" height="60" alt="sawtooth"> | `sawtooth(t)` | Descending ramp: 1 at t=0, −1 approaching t=1. For ascending ramp use `triangle(t, 0)`. |
+| <img src="img/square.svg" width="200" height="60" alt="square"> | `square(t, duty=0.5)` | Square wave. `duty` = fraction of period spent high. |
+| <img src="img/triangle.svg" width="200" height="60" alt="triangle"> | `triangle(t, ratio=0.5)` | Triangle wave. `ratio` = peak position (0 = ascending ramp, 1 = descending ramp). |
+| <img src="img/trapezoid.svg" width="200" height="60" alt="trapezoid"> | `trapezoid(t, p1=0.25, p2=0.5, p3=0.75)` | Trapezoid wave. Rise ends at `p1`, fall starts at `p2`, fall ends at `p3`. Generalizes square and triangle. |
+| <img src="img/pulse.svg" width="200" height="60" alt="pulse"> | `pulse(t, width=0)` | Dirac-like pulse: 1 at t=0, 0 elsewhere. `width` extends the high region. |
+| <img src="img/clausen.svg" width="200" height="60" alt="clausen"> | `clausen(t, harmonics=10)` | [Clausen function](https://en.wikipedia.org/wiki/Clausen_function): Σ sin(kθ)/k². |
+| <img src="img/noise.svg" width="200" height="60" alt="noise"> | `noise(t)` | Periodic noise — repeating random buffer. |
+| | **Fourier / Wavetable** | |
+| <img src="img/fourier.svg" width="200" height="60" alt="fourier"> | `fourier(t, real, imag)` | Evaluate one sample from Fourier coefficients. `real[k]` and `imag[k]` are cosine/sine amplitudes for harmonic `k`. Index 0 is DC, 1 is fundamental. |
+| <img src="img/wavetable.svg" width="200" height="60" alt="wavetable"> | `wavetable(real, imag, {size=8192, normalize=true})` | Build a `Float32Array` wavetable from Fourier coefficients. Used for `AudioContext.createPeriodicWave`. |
+| | **Lookup** | |
+| <img src="img/interpolate.svg" width="200" height="60" alt="interpolate"> | `interpolate(t, samples)` | Linearly interpolate between samples, treating them as one period. |
+| <img src="img/step.svg" width="200" height="60" alt="step"> | `step(t, samples)` | Step lookup — nearest sample, no interpolation. |
 
 ## Examples
 
