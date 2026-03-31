@@ -2,7 +2,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { sine, cosine, sawtooth, square, triangle, trapezoid, pulse, clausen, noise, interpolate, step, fourier, wavetable } from './index.js'
 
-const W = 200, H = 60, PAD = 6, N = 256
+const W = 200, H = 60, PAD = 6, N = 80
 
 function makeSVG(samples) {
 	let min = Infinity, max = -Infinity
@@ -10,20 +10,20 @@ function makeSVG(samples) {
 	let pad = (max - min || 1) * 0.08
 	let lo = min - pad, span = (max + pad) - lo
 
-	let d = samples.map((v, i) => {
+	let pts = samples.map((v, i) => {
 		let x = (PAD + (i / (N - 1)) * (W - 2 * PAD)).toFixed(1)
 		let y = (PAD + (1 - (v - lo) / span) * (H - 2 * PAD)).toFixed(1)
-		return `${i === 0 ? 'M' : 'L'}${x} ${y}`
+		return `${x},${y}`
 	}).join(' ')
 
 	let zy = PAD + (1 - (0 - lo) / span) * (H - 2 * PAD)
 	let zeroLine = zy >= PAD && zy <= H - PAD
-		? `<line x1="${PAD}" y1="${zy.toFixed(1)}" x2="${W - PAD}" y2="${zy.toFixed(1)}" stroke="#ccc" stroke-width="0.75"/>`
+		? `<line x1="${PAD}" y1="${zy.toFixed(1)}" x2="${W - PAD}" y2="${zy.toFixed(1)}" stroke="#999" stroke-width="0.5"/>`
 		: ''
 
-	return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}">
-${zeroLine}
-  <path d="${d}" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+	return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  ${zeroLine}
+  <polyline points="${pts}" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
 </svg>`
 }
 
