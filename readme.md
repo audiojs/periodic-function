@@ -1,48 +1,85 @@
-# periodic-function [![unstable](https://img.shields.io/badge/stability-unstable-green.svg)](http://github.com/badges/stability-badges) [![Build Status](https://img.shields.io/travis/dfcreative/periodic-function.svg)](https://travis-ci.org/dfcreative/periodic-function)
+# periodic-function
 
-Collection of periodic functions with period normalized to turns.
+Periodic waveform functions. Phase `t` is normalized to `[0, 1]` — one full turn.
 
-## Usage
-
-[![npm install periodic-function](https://nodei.co/npm/periodic-function.png?mini=true)](https://npmjs.org/package/periodic-function/)
+```
+npm install periodic-function
+```
 
 ```js
-const fn = require('periodic-function/<fn>')
+import { sine, square, wavetable } from 'periodic-function'
 
-//π radians
-let halfTurn = fn(.5)
-
-//2π radians
-let fullTurn = fn(1)
+sine(0.25)          // 1  (peak)
+square(0.75)        // -1 (low)
+wavetable(null, [0, 1, 0, 0.5])  // Float32Array wavetable from Fourier coefficients
 ```
 
 ## API
 
-### let fn = require('periodic-function/\<fn\>')
+All functions take phase `t ∈ [0, 1]` as first argument. Values outside `[0, 1]` wrap correctly.
 
-The `fn` takes the amount of turn `t` as the first argument and optional parameters. The list of available functions:
+### Waveforms
 
-| Signature | Waveform | Meaning |
----|:---:|---|
-| <code>sine(t,&nbsp;phase=0)</code> | ![sine](img/sine.png) | `Math.sin` normalized to `0..1` rather than radians `0..2π`. To turn into cos, set `phase=.25`. |
-| <code>triangle(t,&nbsp;ratio=0.5)</code> | ![triangle](img/triangle.png) | Triangular waveform with regulated ratio. To turn into sawtooth set `ratio=0` or `ratio=1`. |
-| <code>sawtooth(t,&nbsp;inverse=false)</code> | ![sawtooth](img/sawtooth.png) | Edge case of triangular waveform, whether descending or ascending. |
-| <code>square(t,&nbsp;ratio=0.5)</code> | ![square](img/square.png) | Rectangular waveform with regulated ratio. To turn into pulse set `ratio=0`. |
-| <code>pulse(t,&nbsp;tlr=0)</code> | ![pulse](img/pulse.png) | Delta-pulse, which is `1` at `0` and `0` anywhere else. Pass `tlr` as a precision tolerance, ie. `1e-5`. |
-| <code>fourier(t,&nbsp;real,&nbsp;imag?, normalize=false)</code> | ![fourier](img/fourier.png) | [Fourier Series](https://en.wikipedia.org/wiki/Fourier_series) coefficients, ie. harmonics. `0` harmonic is static level, `1`st is base frequency, `2`nd is double base frequency, `3`rd is triple etc. Set `normalize=true` to bring max harmonic to `1`. |
-| <code>clausen(t,&nbsp;limit=10)</code> | ![clausen](img/clausen.png) | [Clausen function](https://en.wikipedia.org/wiki/Clausen_function). Pass `limit` to indicate number of iterations, precision/performance tradeoff. |
-| <code>step(t, samples)</code> | ![step](img/step.png) | [Step function](https://en.wikipedia.org/wiki/Step_function), picks closest sample value out of a set. |
-| <code>interpolate(t, samples)</code> | ![interpolate](img/interpolate.png) | Interpolates between closest values in a sample set. |
-| <code>noise(t)</code> | ![noise](img/noise.png) | Repeated sample of noise. |
+| | Function | Description |
+|:---:|---|---|
+| ![](img/sine.svg) | `sine(t, phase=0)` | Sine wave. `phase=0.25` gives cosine. |
+| ![](img/cosine.svg) | `cosine(t, phase=0)` | Cosine wave. Equivalent to `sine(t, 0.25)`. |
+| ![](img/sawtooth.svg) | `sawtooth(t)` | Descending ramp: 1 at t=0, −1 approaching t=1. For ascending ramp use `triangle(t, 0)`. |
+| ![](img/square.svg) | `square(t, duty=0.5)` | Square wave. `duty` = fraction of period spent high. |
+| ![](img/triangle.svg) | `triangle(t, ratio=0.5)` | Triangle wave. `ratio` = peak position (0 = ascending ramp, 1 = descending ramp). |
+| ![](img/trapezoid.svg) | `trapezoid(t, p1=0.25, p2=0.5, p3=0.75)` | Trapezoid wave. Rise ends at `p1`, fall starts at `p2`, fall ends at `p3`. Generalizes square and triangle. |
+| ![](img/pulse.svg) | `pulse(t, width=0)` | Dirac-like pulse: 1 at t=0, 0 elsewhere. `width` extends the high region. |
+| ![](img/clausen.svg) | `clausen(t, harmonics=10)` | [Clausen function](https://en.wikipedia.org/wiki/Clausen_function): Σ sin(kθ)/k². |
+| ![](img/noise.svg) | `noise(t)` | Periodic noise — repeating random buffer. |
 
-If you feel like it is not complete list of you know example of a good periodic function, suitable for dsp, welcome to [contribute](https://github.com/dfcreative/periodic-function/issues).
+### Wavetable / Fourier
+
+| | Function | Description |
+|:---:|---|---|
+| ![](img/fourier.svg) | `fourier(t, real, imag)` | Evaluate one sample from Fourier coefficients. `real[k]` and `imag[k]` are cosine/sine amplitudes for harmonic `k`. Index 0 is DC offset, 1 is fundamental. |
+| ![](img/wavetable.svg) | `wavetable(real, imag, {size=8192, normalize=true})` | Build a `Float32Array` wavetable from Fourier coefficients. Used for `AudioContext.createPeriodicWave`. |
+
+### Lookup
+
+| | Function | Description |
+|:---:|---|---|
+| ![](img/interpolate.svg) | `interpolate(t, samples)` | Linearly interpolate between samples, treating them as one period. |
+| ![](img/step.svg) | `step(t, samples)` | Step lookup — nearest sample, no interpolation. |
+
+## Examples
+
+```js
+// Cosine as a phase-shifted sine
+sine(0, 0.25)     // 1  (same as cosine(0))
+
+// Square wave with 10% duty cycle
+square(0.05, 0.1) // 1
+square(0.15, 0.1) // -1
+
+// Triangle with peak at 0.25 (asymmetric)
+triangle(0.25, 0.25) // -1  (valley, since peak is at t=0)
+
+// Trapezoid as a square with soft edges
+trapezoid(t, 0.05, 0.5, 0.55)
+
+// Fourier series: pure sine
+fourier(0.25, null, [0, 1])  // 1
+
+// Wavetable for Web Audio API PeriodicWave
+const real = new Float32Array(64)
+const imag = new Float32Array(64)
+for (let k = 1; k < 64; k += 2) imag[k] = 4 / (Math.PI * k)  // square wave
+const table = wavetable(real, imag)  // Float32Array[8192], normalized to ±1
+```
 
 ## Related
 
-* [audio-oscillator](https://github.com/audiojs/audio-oscillator)
-* [createPeriodicWave](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/createPeriodicWave)
-* [List of periodic functions](https://en.wikipedia.org/wiki/List_of_periodic_functions)
+- [web-audio-api](https://github.com/audiojs/web-audio-api) — uses `wavetable()` for `PeriodicWave`
+- [MDN: createPeriodicWave](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/createPeriodicWave)
+- [List of periodic functions](https://en.wikipedia.org/wiki/List_of_periodic_functions)
 
-## Credits
+## License
 
-© 2017 Dima Yv. MIT License
+MIT © Dmitry Iv
+
+<p align=center><a href="https://github.com/krishnized/license/">ॐ</a></p>

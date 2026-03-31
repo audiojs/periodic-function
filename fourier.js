@@ -1,33 +1,15 @@
-'use strict'
+const τ = Math.PI * 2
 
-var τ = Math.PI*2
-module.exports = function fourier (t, real, imag, normalize) {
-	var res = 0;
-	var sumReal = 0, sumImag = 0;
-
-	t %= 1
-	if (t < 0) t += 1
-
-	if (imag === true) {
-		normalize = imag
-		imag = null
+// Fourier series: evaluate one sample at phase t.
+// x(t) = Σ[ real[k]·cos(2πkt) + imag[k]·sin(2πkt) ]
+// k=0 is DC offset, k=1 is fundamental, k=2 is first harmonic, etc.
+export default function fourier(t, real, imag) {
+	let nr = real?.length || 0, ni = imag?.length || 0
+	let n = Math.max(nr, ni), v = 0
+	for (let k = 0; k < n; k++) {
+		let θ = τ * k * t
+		if (k < nr && real[k]) v += real[k] * Math.cos(θ)
+		if (k < ni && imag[k]) v += imag[k] * Math.sin(θ)
 	}
-	var N
-	if (real) {
-		N = real.length
-		for (var harmonic = 0; harmonic < N; harmonic++) {
-			res += real[harmonic] * Math.cos(τ * t * harmonic)
-			sumReal += real[harmonic];
-		}
-	}
-
-	if (imag) {
-		N = imag.length
-		for (var harmonic = 0; harmonic < N; harmonic++) {
-			res += imag[harmonic] * Math.sin(τ * t * harmonic);
-			sumImag += imag[harmonic];
-		}
-	}
-
-	return normalize ? res / (sumReal + sumImag) : res;
-};
+	return v
+}

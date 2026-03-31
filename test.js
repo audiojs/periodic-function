@@ -1,171 +1,149 @@
-'use strict'
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { sine, cosine, sawtooth, square, triangle, trapezoid, pulse, clausen, noise, interpolate, step, fourier, wavetable } from './index.js'
 
-const t = require('tape')
-const fn = require('./')
-const almost = require('almost-equal')
+const ε = 1e-6
+const near = (a, b) => Math.abs(a - b) < ε
 
-function draw(fn, ...args) {
-	if (typeof document === 'undefined') return
+test('sine', () => {
+	assert.ok(near(sine(0), 0))
+	assert.ok(near(sine(0.25), 1))
+	assert.ok(near(sine(0.5), 0))
+	assert.ok(near(sine(0.75), -1))
+	assert.ok(near(sine(-0.75), sine(0.25)))
+	// phase shift
+	assert.ok(near(sine(0, 0.25), 1))   // sine with 0.25 phase = cosine
+})
 
-	let arr = populate(fn, 32, ...args)
+test('cosine', () => {
+	assert.ok(near(cosine(0), 1))
+	assert.ok(near(cosine(0.25), 0))
+	assert.ok(near(cosine(0.5), -1))
+	assert.ok(near(cosine(0.75), 0))
+	// cosine = sine shifted by 0.25
+	assert.ok(near(cosine(0.3), sine(0.3, 0.25)))
+})
 
-	let canvas = document.body.appendChild(document.createElement('canvas'))
-	let ctx = canvas.getContext('2d')
-	canvas.width = arr.length
-	canvas.height = 32
-	let w = canvas.width * .75, h = canvas.height*.75
+test('sawtooth', () => {
+	assert.ok(near(sawtooth(0), 1))
+	assert.ok(near(sawtooth(0.5), 0))
+	assert.ok(near(sawtooth(0.875), -0.75))
+	assert.ok(near(sawtooth(-0.75), sawtooth(0.25)))
+})
 
-	ctx.beginPath()
-	// ctx.moveTo(canvas.width*.125,canvas.height*.625)
-	for (let i = 0, l = arr.length; i < l; i++) {
-		// ctx.fillRect(w*i/l, h*.5, 1, -(arr[i]*.5)*h )
-		ctx.lineTo(w*i/l + canvas.width*.125, canvas.height*.5-(arr[i]*.5)*h )
+test('square', () => {
+	assert.equal(square(0), 1)
+	assert.equal(square(0.25), 1)
+	assert.equal(square(0.5), -1)
+	assert.equal(square(0.75), -1)
+	// duty cycle
+	assert.equal(square(0.05, 0.1), 1)
+	assert.equal(square(0.15, 0.1), -1)
+	assert.equal(square(-0.75), square(0.25))
+})
+
+test('triangle', () => {
+	assert.equal(triangle(0), 1)
+	assert.equal(triangle(0.25), 0)
+	assert.equal(triangle(0.5), -1)
+	assert.equal(triangle(0.75), 0)
+	assert.ok(near(triangle(-0.75), triangle(0.25)))
+	// ratio=0: ascending ramp
+	assert.equal(triangle(0, 0), -1)
+	assert.equal(triangle(0.5, 0), 0)
+	// ratio=1: descending (same as sawtooth)
+	assert.ok(near(triangle(0.3, 1), sawtooth(0.3)))
+})
+
+test('trapezoid', () => {
+	// default: rise [0,0.25], high [0.25,0.5], fall [0.5,0.75], low [0.75,1]
+	assert.equal(trapezoid(0), -1)
+	assert.equal(trapezoid(0.125), 0)    // midpoint of rise
+	assert.equal(trapezoid(0.25), 1)     // top of rise
+	assert.equal(trapezoid(0.4), 1)      // sustain high
+	assert.equal(trapezoid(0.625), 0)    // midpoint of fall
+	assert.equal(trapezoid(0.75), -1)    // bottom of fall
+	assert.equal(trapezoid(0.9), -1)     // sustain low
+	// square-like: trapezoid(t, 0, 0.5, 0.5)
+	assert.equal(trapezoid(0, 0, 0.5, 0.5), 1)
+	assert.equal(trapezoid(0.49, 0, 0.5, 0.5), 1)
+	assert.equal(trapezoid(0.5, 0, 0.5, 0.5), -1)
+})
+
+test('pulse', () => {
+	assert.equal(pulse(0), 1)
+	assert.equal(pulse(0.01), 0)
+	assert.equal(pulse(0.5), 0)
+	// with width
+	assert.equal(pulse(0.05, 0.1), 1)
+	assert.equal(pulse(0.15, 0.1), 0)
+	assert.ok(near(pulse(-0.75), pulse(0.25)))
+})
+
+test('clausen', () => {
+	assert.ok(near(clausen(0), 0))
+	assert.ok(near(clausen(0.5), 0))       // antisymmetric around 0.5
+	assert.ok(near(clausen(-0.75), clausen(0.25)))
+})
+
+test('noise', () => {
+	// periodic: same t gives same value
+	assert.equal(noise(0), noise(0))
+	assert.equal(noise(0.5), noise(0.5))
+	assert.equal(noise(1.5), noise(0.5))
+	// values in [-1, 1]
+	for (let i = 0; i < 10; i++) {
+		let v = noise(i / 10)
+		assert.ok(v >= -1 && v <= 1)
 	}
-	// ctx.lineTo(canvas.width*.875,canvas.height*.625)
-	ctx.lineWidth = 2;
-	ctx.stroke()
-	ctx.closePath()
-}
-
-function populate(fn, N, ...args) {
-	return Array.from({length: N}, (v, i) => fn(i/N, ...args))
-}
-
-
-t('sin', t => {
-	draw(fn.sine)
-	var sin = populate(fn.sine, 1024);
-	t.equal(sin[0], 0);
-	t.equal(sin[~~(1024/4)], 1);
-	t.ok(almost(sin[~~(1024/2)], 0, 0.0001, 0.0001));
-	t.equal(fn.sine(-.75), fn.sine(.25))
-	t.end()
-});
-
-t('cos', t => {
-	draw(fn.sine, .25)
-	var cos = populate(fn.sine, 4, .25);
-	t.equal(cos[0], 1);
-	t.ok(almost(cos[1], 0, 0.0001, 0.0001));
-	t.equal(cos[2], -1);
-	t.ok(almost(cos[3], 0, 0.0001, 0.0001));
-	t.end()
-});
-
-t('delta', t => {
-	draw(fn.pulse)
-	var delta = populate(fn.pulse, 4);
-	t.equal(delta[0], 1);
-	t.equal(delta[1], 0);
-	t.equal(delta[2], 0);
-	t.equal(delta[3], 0);
-	t.end()
-});
-
-t('pulse', t => {
-	var pulse = populate(fn.pulse, 10, 0);
-	t.equal(pulse[0], 1);
-	t.equal(pulse[1], 0);
-	t.equal(pulse[9], 0);
-	t.equal(fn.pulse(-.75), fn.pulse(.25))
-	t.end()
-});
-
-t('square', t => {
-	draw(fn.square)
-	var square = populate(fn.square, 10);
-	t.equal(square[0], 1);
-	t.equal(square[4], 1);
-	t.equal(square[5], -1);
-	t.equal(square[9], -1);
-
-	draw(fn.square, .1)
-	var square = populate(fn.square, 10, .1);
-	t.equal(square[0], 1);
-	t.equal(square[4], -1);
-	t.equal(square[5], -1);
-	t.equal(square[9], -1);
-	t.equal(fn.square(-.75), fn.square(.25))
-	t.end()
-});
-
-
-t('triangle', t => {
-	draw(fn.triangle)
-	var triangle = populate(fn.triangle, 8);
-	t.equal(triangle[0], 1);
-	t.equal(triangle[1], 0.5);
-	t.equal(triangle[2], 0);
-	t.equal(triangle[3], -.5);
-	t.equal(triangle[4], -1);
-	t.equal(triangle[6], 0);
-	t.equal(triangle[7], 0.5);
-	t.equal(fn.triangle(-.75), fn.triangle(.25))
-	t.end()
-});
-
-t('triangle ratio', t => {
-	draw(fn.triangle, .25)
-	var triangle = populate(fn.triangle, 8, .25);
-	t.equal(triangle[2], -1)
-	t.end()
-});
-
-t('saw', t => {
-	draw(fn.sawtooth)
-	var saw = populate(fn.sawtooth, 8);
-	t.equal(saw[0], 1);
-	t.equal(saw[7], -.75);
-
-	draw(fn.sawtooth, true)
-	var sawi = populate(fn.sawtooth, 8, true);
-	t.equal(sawi[0], -1);
-	t.equal(sawi[7], .75);
-
-	t.equal(fn.sawtooth(-.75), fn.sawtooth(.25))
-	t.end()
-});
-
-
-t('fourier', t => {
-	draw(fn.fourier, [0, 1, 0, .5], [0, .5, 0, .1], true)
-	var series = populate(fn.fourier, 8, [1, .5, .25, .125], true);
-	t.equal(series[0], 1)
-
-	populate(fn.fourier, 8, null, [1, .5, .25, .125], true);
-	populate(fn.fourier, 8, [1, .5, .25, .125], null, true);
-	t.end()
-});
-
-
-t('noise', t => {
-	draw(fn.noise)
-	t.end()
 })
 
-t('clausen', t => {
-	draw(fn.clausen)
-	var clausen = populate(fn.clausen, 10);
-	t.ok(almost(clausen[5], 0))
-	t.equal(fn.clausen(-.75), fn.clausen(.25))
-	t.end()
-});
-
-t('interpolate', t => {
-	let set = Array.from({length: 6}, (v, i) => Math.random()*2 - 1)
-	draw(fn.interpolate, set)
-
-	var int = populate(fn.interpolate, 10, [0, .5, 1, .5, 0]);
-	t.equal(int[0], 0)
-	t.equal(int[1], 0.25)
-	t.equal(int[2], 0.5)
-	t.equal(int[9], 0)
-
-	t.end()
+test('interpolate', () => {
+	const samples = [0, 0.5, 1, 0.5, 0]
+	assert.equal(interpolate(0, samples), 0)
+	assert.ok(near(interpolate(0.2, samples), 0.5))
+	assert.ok(near(interpolate(0.4, samples), 1))
+	assert.ok(near(interpolate(0.1, samples), 0.25))
 })
 
-t('step', t => {
-	let set = Array.from({length: 6}, (v, i) => Math.random()*2 - 1)
-	draw(fn.step, set)
-	t.end()
+test('step', () => {
+	const samples = [0, 1, 2, 3]
+	assert.equal(step(0, samples), 0)
+	assert.equal(step(0.25, samples), 1)
+	assert.equal(step(0.5, samples), 2)
+	assert.equal(step(0.75, samples), 3)
+	assert.equal(step(1, samples), 0)   // wraps
+})
+
+test('fourier', () => {
+	// pure sine: imag[1]=1 → sin(2πt)
+	assert.ok(near(fourier(0, null, [0, 1]), 0))
+	assert.ok(near(fourier(0.25, null, [0, 1]), 1))
+	assert.ok(near(fourier(0.75, null, [0, 1]), -1))
+	// pure cosine: real[1]=1 → cos(2πt)
+	assert.ok(near(fourier(0, [0, 1], null), 1))
+	assert.ok(near(fourier(0.25, [0, 1], null), 0))
+	// DC offset: real[0]=0.5
+	assert.ok(near(fourier(0.3, [0.5], null), 0.5))
+})
+
+test('wavetable', () => {
+	// pure sine wavetable (normalized)
+	const tbl = wavetable(null, [0, 1], {size: 1024})
+	assert.ok(near(tbl[0], 0))
+	assert.ok(near(tbl[256], 1))        // quarter period = peak
+	assert.ok(near(tbl[512], 0))
+	assert.ok(near(tbl[768], -1))
+	assert.ok(tbl instanceof Float32Array)
+	assert.equal(tbl.length, 1024)
+
+	// normalization
+	const tbl2 = wavetable(null, [0, 1, 0, 0.5], {size: 256})
+	let max = 0
+	for (let v of tbl2) if (Math.abs(v) > max) max = Math.abs(v)
+	assert.ok(near(max, 1))
+
+	// no normalization
+	const tbl3 = wavetable(null, [0, 1], {size: 4, normalize: false})
+	assert.ok(near(tbl3[1], 1))         // sin(π/2) = 1
 })

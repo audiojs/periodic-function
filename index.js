@@ -1,17 +1,13 @@
-/**
- * @module periodic-function
- */
-'use strict'
-
-module.exports = {
-	noise: require('./noise'),
-	sine: require('./sine'),
-	triangle: require('./triangle'),
-	sawtooth: require('./sawtooth'),
-	square: require('./square'),
-	pulse: require('./pulse'),
-	fourier: require('./fourier'),
-	clausen: require('./clausen'),
-	interpolate: require('./interpolate'),
-	step: require('./step')
-}
+export { default as sine }        from './sine.js'
+export { default as cosine }      from './cosine.js'
+export { default as sawtooth }    from './sawtooth.js'
+export { default as square }      from './square.js'
+export { default as triangle }    from './triangle.js'
+export { default as trapezoid }   from './trapezoid.js'
+export { default as pulse }       from './pulse.js'
+export { default as clausen }     from './clausen.js'
+export { default as noise }       from './noise.js'
+export { default as interpolate } from './interpolate.js'
+export { default as step }        from './step.js'
+export { default as fourier }     from './fourier.js'
+export { default as wavetable }   from './wavetable.js'

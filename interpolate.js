@@ -1,15 +1,8 @@
-'use strict'
-
-module.exports = function interpolate(t, samples) {
-	t%=1
-	if (t < 0) t += 1
-
-	var ptr = t*samples.length
-	var left = Math.floor(ptr)
-	var right = Math.ceil(ptr)
-	if (left === right) right++
-	right %= samples.length
-	var ratio = ptr - left
-
-	return samples[right] * ratio + samples[left] * (1 - ratio)
+// Linear interpolation between samples, treating them as one period.
+export default function interpolate(t, samples) {
+	t = ((t % 1) + 1) % 1
+	let n = samples.length
+	let ptr = t * n
+	let lo = Math.floor(ptr), hi = (lo + 1) % n
+	return samples[lo] + (samples[hi] - samples[lo]) * (ptr - lo)
 }

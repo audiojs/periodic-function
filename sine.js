@@ -1,9 +1,6 @@
-'use strict'
+const τ = Math.PI * 2
 
-var τ = Math.PI * 2
-module.exports = function sine (t, phase) {
-	t%=1
-	if (t < 0) t += 1
-	if (!phase) phase = 0
-	return Math.sin(τ * (t + phase));
-};
+// Sine wave. phase shifts the start point (0.25 = cosine).
+export default function sine(t, phase = 0) {
+	return Math.sin(τ * (t + phase))
+}

@@ -1,31 +1,33 @@
 {
   "name": "periodic-function",
-  "version": "1.1.4",
-  "description": "Collection of periodic functions",
-  "main": "index.js",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Periodic waveform functions — phase normalized to [0,1]",
+  "exports": {
+    ".": "./index.js",
+    "./sine": "./sine.js",
+    "./cosine": "./cosine.js",
+    "./sawtooth": "./sawtooth.js",
+    "./square": "./square.js",
+    "./triangle": "./triangle.js",
+    "./trapezoid": "./trapezoid.js",
+    "./pulse": "./pulse.js",
+    "./clausen": "./clausen.js",
+    "./noise": "./noise.js",
+    "./interpolate": "./interpolate.js",
+    "./step": "./step.js",
+    "./fourier": "./fourier.js",
+    "./wavetable": "./wavetable.js"
+  },
   "scripts": {
-    "test": "node test --harmony"
+    "test": "node test.js",
+    "plots": "node generate-plots.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dfcreative/periodic-function.git"
   },
-  "keywords": [
-    "periodic",
-    "math",
-    "sine",
-    "cosine",
-    "sawtooth",
-    "dsp"
-  ],
-  "author": "Dima Yv <dfcreative@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/dfcreative/periodic-function/issues"
-  },
-  "homepage": "https://github.com/dfcreative/periodic-function#readme",
-  "devDependencies": {
-    "almost-equal": "^1.1.0",
-    "tape": "^4.6.3"
-  }
+  "keywords": ["periodic", "waveform", "sine", "sawtooth", "square", "triangle", "fourier", "wavetable", "dsp", "audio"],
+  "author": "Dmitry Iv <dfcreative@gmail.com>",
+  "license": "MIT"
 }

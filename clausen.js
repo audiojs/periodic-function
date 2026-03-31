@@ -1,16 +1,9 @@
-'use strict'
+const τ = Math.PI * 2
 
-var τ = Math.PI * 2
-module.exports = function clausen (t, limit) {
-	if (limit == null) limit = 10
-
-	t %= 1
-	if (t < 0) t += 1
-
-	var result = 0
-	for (var k = 1; k <= limit; k++) {
-		result += Math.sin(k*τ*t) / (k*k)
-	}
-
-	return result
-};
+// Clausen function: Σ sin(kθ)/k², a smooth periodic ripple.
+export default function clausen(t, harmonics = 10) {
+	t = ((t % 1) + 1) % 1
+	let v = 0
+	for (let k = 1; k <= harmonics; k++) v += Math.sin(k * τ * t) / (k * k)
+	return v
+}
