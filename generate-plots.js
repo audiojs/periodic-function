@@ -18,7 +18,7 @@ function makeSVG(samples) {
 
 	let zy = PAD + (1 - (0 - lo) / span) * (H - 2 * PAD)
 	let zeroLine = zy >= PAD && zy <= H - PAD
-		? `<line x1="${PAD}" y1="${zy.toFixed(1)}" x2="${W - PAD}" y2="${zy.toFixed(1)}" stroke="#999" stroke-width="0.5"/>`
+		? `<line x1="${PAD}" y1="${zy.toFixed(1)}" x2="${W - PAD}" y2="${zy.toFixed(1)}" stroke="#999" stroke-width="1"/>`
 		: ''
 
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
