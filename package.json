@@ -1,6 +1,6 @@
 {
   "name": "periodic-function",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "Periodic waveform functions — phase normalized to [0,1]",
   "exports": {
