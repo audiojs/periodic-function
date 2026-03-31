@@ -23,7 +23,7 @@ function makeSVG(samples) {
 
 	return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   ${zeroLine}
-  <polyline points="${pts}" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+  <polyline points="${pts}" fill="none" stroke="#3b82f6" stroke-width="3"/>
 </svg>`
 }
 
