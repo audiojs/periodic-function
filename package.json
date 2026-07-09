@@ -1,8 +1,20 @@
 {
   "name": "periodic-function",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "type": "module",
   "description": "Periodic waveform functions — phase normalized to [0,1]",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./*.js": "./*.js",
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "files": [
+    "*.js",
+    "!test.js",
+    "!generate-plots.js"
+  ],
   "scripts": {
     "test": "node test.js",
     "plots": "node generate-plots.js"
