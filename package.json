@@ -1,6 +1,6 @@
 {
   "name": "periodic-function",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "type": "module",
   "description": "Periodic waveform functions — phase normalized to [0,1]",
   "main": "index.js",
@@ -36,5 +36,6 @@
     "audio"
   ],
   "author": "Dmitry Iv <dfcreative@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "funding": "https://github.com/sponsors/audiojs"
 }
